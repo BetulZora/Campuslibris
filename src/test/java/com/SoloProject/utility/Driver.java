@@ -33,7 +33,7 @@ public class Driver {
         // it will check if driver is null and if it is we will set up browser inside if statement
         // if you already setup driver and using it again for following line of codes, it will return to same driver
         if (driverPool.get() == null) {
-            String browserName = System.getProperty("browser") != null ? browserName = System.getProperty("browser") : com.library.utility.ConfigurationReader.getProperty("browser");
+            String browserName = System.getProperty("browser") != null ? browserName = System.getProperty("browser") : com.SoloProject.utility.ConfigurationReader.getProperty("browser");
 
 
 
