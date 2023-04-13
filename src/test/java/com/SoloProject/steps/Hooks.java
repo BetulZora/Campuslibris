@@ -1,4 +1,4 @@
-package com.SoloProject.step_definitions;
+package com.SoloProject.steps;
 
 import com.SoloProject.utility.ConfigurationReader;
 import com.SoloProject.utility.DB_Util;

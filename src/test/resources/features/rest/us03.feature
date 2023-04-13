@@ -16,6 +16,7 @@ Feature: As a librarian, I want to create a new book
 
 
   Scenario: Create a new book all layers
+    #all layers ui, db and api
     Given I logged Library api as a "librarian"
     And Accept header is "application/json"
     And Request Content Type header is "application/x-www-form-urlencoded"

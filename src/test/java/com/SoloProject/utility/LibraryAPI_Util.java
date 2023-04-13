@@ -1,9 +1,7 @@
 package com.SoloProject.utility;
 
-import com.SoloProject.utility.ConfigurationReader;
 import com.github.javafaker.Faker;
 import io.restassured.http.ContentType;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -40,7 +38,7 @@ public class LibraryAPI_Util {
                 when()
                 .post(ConfigurationReader.getProperty("library.baseUri")+"/login")
                 .prettyPeek()
-                .path("token") ;
+                .path("token"); // can add then() if we want to
 
 
     }
