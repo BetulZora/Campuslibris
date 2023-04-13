@@ -9,6 +9,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
+import org.hamcrest.Matchers;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,6 +35,12 @@ public class APIStepDefs {
         givenPart = given().log().all()
                .header("x-library-token",LibraryAPI_Util.getToken(userType));
     }
+    @Given("I logged Library api with credentials {string} and {string}")
+    public void i_logged_library_api_with_credentials_and(String string, String string2) {
+        /**TODO: I have to write this
+         *
+         */
+    }
     @Given("Accept header is {string}")
     public void accept_header_is(String contentType) {
         givenPart.accept(contentType);
@@ -42,7 +49,6 @@ public class APIStepDefs {
     @Given("Request Content Type header is {string}")
     public void request_content_type_header_is(String contentTypeHeader) {
         givenPart.contentType(contentTypeHeader);
-        System.out.println("Request Content Type header is COMPLETED");
 
     }
 
@@ -50,6 +56,13 @@ public class APIStepDefs {
     public void pathParamIs(String pathParam) {
         pathParameter = pathParam;
         givenPart.pathParam("id", pathParameter);
+    }
+
+    @Given("I send token information as request body")
+    public void i_send_token_information_as_request_body() {
+        /**TODO: I have to write this
+         *
+         */
     }
 
     @Given("I create a random {string} as request body")
@@ -65,7 +78,7 @@ public class APIStepDefs {
                     "WRONG TYPE CHOSEN CHOOSE BOOK OR USER");
         }
 
-        givenPart.body(map);
+        givenPart.formParams(map);
         System.out.println("map created");
 
 
@@ -79,7 +92,6 @@ public class APIStepDefs {
     public void i_send_post_request_to_endpoint(String endPoint) {
         response = givenPart.when().post(ConfigurationReader.getProperty("library.baseUri")+endPoint).prettyPeek();
         vResp = response.then();
-        System.out.println("I sent in my Post Request");
 
     }
     @Then("status code should be {int}")
@@ -92,7 +104,7 @@ public class APIStepDefs {
     }
     @Then("{string} field should not be null")
     public void field_should_not_be_null(String path) {
-        vResp.body(path, everyItem(notNullValue()));
+        vResp.body(path, is(notNullValue()));
     }
 
 
