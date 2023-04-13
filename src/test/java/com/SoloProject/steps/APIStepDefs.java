@@ -41,7 +41,7 @@ public class APIStepDefs {
 
     @Given("Request Content Type header is {string}")
     public void request_content_type_header_is(String contentTypeHeader) {
-        givenPart.contentType("application/x-www-form-urlencoded");
+        givenPart.contentType(contentTypeHeader);
         System.out.println("Request Content Type header is COMPLETED");
 
     }
@@ -55,7 +55,16 @@ public class APIStepDefs {
     @Given("I create a random {string} as request body")
     public void i_create_a_random_as_request_body(String bookOrUser) {
         Map<String,Object> map = new LinkedHashMap<>();
-                map = LibraryAPI_Util.getRandomBookMap();
+
+        if(bookOrUser.equals("book")){
+            map = LibraryAPI_Util.getRandomBookMap();
+        } else if(bookOrUser.equals("user")){
+            map = LibraryAPI_Util.getRandomUserMap();
+        } else {
+            System.out.println("#####################################\n" +
+                    "WRONG TYPE CHOSEN CHOOSE BOOK OR USER");
+        }
+
         givenPart.body(map);
         System.out.println("map created");
 
