@@ -1,7 +1,7 @@
 Feature: As a user, I want to search for a specific user by their id
   so that I can quickly find the information I need.
 
-
+  @US02
   Scenario: Retrieve single user
     Given I logged Library api as a "librarian"
     And Accept header is "application/json"

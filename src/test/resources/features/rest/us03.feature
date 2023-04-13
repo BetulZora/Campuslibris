@@ -1,7 +1,7 @@
 Feature: As a librarian, I want to create a new book
 
 
-
+  @US03
   Scenario: Create a new book API
     Given I logged Library api as a "librarian"
     And Accept header is "application/json"

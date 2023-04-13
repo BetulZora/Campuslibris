@@ -2,12 +2,15 @@ package com.SoloProject.steps;
 
 import com.SoloProject.utility.ConfigurationReader;
 import com.SoloProject.utility.LibraryAPI_Util;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
+
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -17,6 +20,8 @@ public class APIStepDefs {
     RequestSpecification givenPart;
     Response response;
     ValidatableResponse vResp;
+    String pathParameter="";
+    String endPoint;
 
 
     /**
@@ -31,6 +36,12 @@ public class APIStepDefs {
     @Given("Accept header is {string}")
     public void accept_header_is(String contentType) {
         givenPart.accept(contentType);
+    }
+
+    @And("Path param is {string}")
+    public void pathParamIs(String pathParam) {
+        pathParameter = pathParam;
+        givenPart.pathParam("id", pathParameter);
     }
     @When("I send GET request to {string} endpoint")
     public void i_send_get_request_to_endpoint(String endpoint) {
@@ -50,4 +61,17 @@ public class APIStepDefs {
         vResp.body(path, everyItem(notNullValue()));
     }
 
+
+
+    @And("{string} field should be same with path param")
+    public void fieldShouldBeSameWithPathParam(String pathParam) {
+        vResp.body(pathParam, is(equalTo(pathParameter)));
+    }
+
+    @And("following fields should not be null")
+    public void followingFieldsShouldNotBeNull(List<String> fields) {
+        for (String field : fields) {
+            vResp.body(field, is(notNullValue()));
+        }
+    }
 }
