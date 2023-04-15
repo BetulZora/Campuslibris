@@ -1,5 +1,7 @@
 package com.SoloProject.steps;
 
+import com.SoloProject.pages.BookPage;
+import com.SoloProject.utility.BrowserUtil;
 import com.SoloProject.utility.ConfigurationReader;
 import com.SoloProject.utility.LibraryAPI_Util;
 import io.cucumber.java.en.Given;
@@ -10,7 +12,9 @@ import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matchers;
+import org.openqa.selenium.WebElement;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +28,8 @@ public class APIStepDefs {
     Response response;
     ValidatableResponse vResp;
     String pathParameter="";
+    BookPage bookPage;
+    String acceptContentType;
 
 
     /**
@@ -44,6 +50,7 @@ public class APIStepDefs {
     @Given("Accept header is {string}")
     public void accept_header_is(String contentType) {
         givenPart.accept(contentType);
+        acceptContentType = contentType;
     }
 
     @Given("Request Content Type header is {string}")
@@ -129,6 +136,31 @@ public class APIStepDefs {
 
 
 
+    @Then("UI, Database and API created book information must match")
+    public void ui_database_and_api_created_book_information_must_match() {
+        bookPage = new BookPage();
+        String book_id = response.jsonPath().getString("book_id");
+
+        Response resp = given().log().all()
+                .header("x-library-token",LibraryAPI_Util.getToken("librarian"))
+                .accept(acceptContentType)
+                .pathParam("id",book_id)
+                .when().get(ConfigurationReader.getProperty("library.baseUri")+"/get_book_by_id/{id}").prettyPeek();
+
+
+        String bookName=resp.jsonPath().getString("name");
+        System.out.println("bookName = " + bookName);
+        List<WebElement> uiDetails = bookPage.searchForBook(bookName);
+        List<String> allTexts = BrowserUtil.getElementsText(uiDetails);
+        System.out.println("allTexts = " + allTexts);
+
+
+
+        resp.then().body("", hasItems(allTexts));
+
+
+
+    }
 
 
 

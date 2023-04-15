@@ -1,10 +1,14 @@
 package com.SoloProject.pages;
 
+import com.SoloProject.utility.BrowserUtil;
+import com.SoloProject.utility.DB_Util;
 import com.SoloProject.utility.Driver;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BookPage extends BasePage {
@@ -57,6 +61,33 @@ public class BookPage extends BasePage {
     public WebElement borrowBook(String book) {
         String xpath = "//td[3][.='" + book + "']/../td/a";
         return Driver.getDriver().findElement(By.xpath(xpath));
+    }
+
+    public List<WebElement> searchForBook(String bookName){
+
+        search.sendKeys(bookName+ Keys.ENTER);
+        BrowserUtil.waitFor(2);
+        List<WebElement> elems = Driver.getDriver().findElements(By.xpath("//tbody/tr/td"));
+        elems.remove(0);
+        elems.remove(elems.size()-1);
+
+        return elems;
+
+
+/*        List<WebElement> allRow = Driver.getDriver().findElements(By.xpath("//tbody/tr/td"));
+        List<String> allDetails=new ArrayList<>();
+
+        for (WebElement element : allRow) {
+
+
+            allDetails.add(element.getText());
+        }
+
+        System.out.println("allDetails = " + allDetails);
+
+        return allDetails;*/
+
+
     }
 
 
