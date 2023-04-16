@@ -3,17 +3,22 @@ package com.SoloProject.steps;
 import com.SoloProject.pages.BookPage;
 import com.SoloProject.utility.BrowserUtil;
 import com.SoloProject.utility.ConfigurationReader;
+import com.SoloProject.utility.DB_Util;
 import com.SoloProject.utility.LibraryAPI_Util;
+import com.github.javafaker.Job;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matchers;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
+import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,6 +26,7 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 
 public class APIStepDefs {
 
@@ -138,6 +144,8 @@ public class APIStepDefs {
 
     @Then("UI, Database and API created book information must match")
     public void ui_database_and_api_created_book_information_must_match() {
+
+        // -------------------------- compare UI to API-----------------------------
         bookPage = new BookPage();
         String book_id = response.jsonPath().getString("book_id");
 
@@ -150,15 +158,48 @@ public class APIStepDefs {
 
         String bookName=resp.jsonPath().getString("name");
         System.out.println("bookName = " + bookName);
-        List<WebElement> uiDetails = bookPage.searchForBook(bookName);
-        List<String> allTexts = BrowserUtil.getElementsText(uiDetails);
-        System.out.println("allTexts = " + allTexts);
+        Map<String, String> uiDetails = bookPage.getUIMap(bookName);
+
+        ValidatableResponse toConfirm = resp.then();
+
+        toConfirm.body("isbn", is(uiDetails.get("ISBN")));
+        toConfirm.body("name", is(uiDetails.get("Name")));
+        toConfirm.body("author", is(uiDetails.get("Author")));
+        toConfirm.body("year", is(uiDetails.get("Year")));
+
+        //book_category_id=18
+        JsonPath jp = toConfirm.extract().jsonPath();
+        int bookCategoryNum = jp.getInt("book_category_id");
+        System.out.println("bookCategoryNum = " + bookCategoryNum);
 
 
 
-        resp.then().body("", hasItems(allTexts));
+        String bookCategoryAPI;
+        DB_Util.runQuery("select name from book_categories where id="+bookCategoryNum);
+        bookCategoryAPI = DB_Util.getFirstRowFirstColumn();
+        System.out.println("bookCategoryAPI = " + bookCategoryAPI);
 
+        assertEquals(bookCategoryAPI,uiDetails.get("Category"));
 
+        // -------------------------- compare DB to API-----------------------------
+        String Generalquery = "select name, isbn, author, year from books " +
+                "where name = '"+bookName+"' order by id desc";
+        DB_Util.runQuery(Generalquery);
+        Map<String,Object> dBMap = DB_Util.getRowMap(1);
+        System.out.println("dBMap = " + dBMap);
+
+        String categoriesQuery = "select name from book_categories where id = (select book_category_id from books " +
+                "where name = '"+bookName+"' order by id desc)";
+        DB_Util.runQuery(categoriesQuery);
+        Map<String,Object> catMap = DB_Util.getRowMap(1);
+        System.out.println("catMap = " + catMap);
+
+        toConfirm.body("isbn", is(dBMap.get("isbn")));
+        toConfirm.body("name", is(dBMap.get("name")));
+        toConfirm.body("author", is(dBMap.get("author")));
+        toConfirm.body("year", is(dBMap.get("year")));
+
+        assertEquals(bookCategoryAPI,catMap.get("name"));
 
     }
 

@@ -9,7 +9,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BookPage extends BasePage {
 
@@ -63,29 +65,39 @@ public class BookPage extends BasePage {
         return Driver.getDriver().findElement(By.xpath(xpath));
     }
 
-    public List<WebElement> searchForBook(String bookName){
+    public Map<String, String> getUIMap(String bookName){
+
 
         search.sendKeys(bookName+ Keys.ENTER);
         BrowserUtil.waitFor(2);
-        List<WebElement> elems = Driver.getDriver().findElements(By.xpath("//tbody/tr/td"));
-        elems.remove(0);
-        elems.remove(elems.size()-1);
-
-        return elems;
-
-
-/*        List<WebElement> allRow = Driver.getDriver().findElements(By.xpath("//tbody/tr/td"));
-        List<String> allDetails=new ArrayList<>();
-
-        for (WebElement element : allRow) {
+        List<WebElement> listText = new ArrayList<>();
+        listText.addAll(Driver.getDriver().findElements(By.xpath("//tbody/tr/td")));
+        System.out.println("bookelems.get(0) = " + listText.get(0).getText());
+        listText.remove(listText.size()-1);
+        listText.remove(0);
 
 
-            allDetails.add(element.getText());
+        String locator = "//th[@aria-controls='tbl_books']";
+        List<WebElement> listHeader = new ArrayList<>();
+        listHeader.addAll(Driver.getDriver().findElements(By.xpath(locator)));
+        System.out.println("Header elems.get(0) = " + listHeader.get(0).getText());
+        listHeader.remove(listHeader.size() - 1);
+
+
+
+        Map<String, String> uIMap = new HashMap<>();
+
+        for (int i = 0; i < listHeader.size(); i++) {
+
+            uIMap.put(listHeader.get(i).getText(), listText.get(i).getText());
+            System.out.println("added Key "+listHeader.get(i).getText());
+            System.out.println("added Value "+listText.get(i).getText());
+
+
         }
+        System.out.println("uIMap = " + uIMap);
+        return uIMap;
 
-        System.out.println("allDetails = " + allDetails);
-
-        return allDetails;*/
 
 
     }
