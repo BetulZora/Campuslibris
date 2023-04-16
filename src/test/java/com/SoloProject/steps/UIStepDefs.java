@@ -5,6 +5,9 @@ import com.SoloProject.pages.LoginPage;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class UIStepDefs {
 
     LoginPage loginPage = new LoginPage();
@@ -19,6 +22,9 @@ public class UIStepDefs {
     public void i_navigate_to_page(String page) {
         bookPage.navigateModule(page);
     }
+
+
+
 
 
 

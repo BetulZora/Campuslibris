@@ -102,6 +102,28 @@ public class BookPage extends BasePage {
 
     }
 
+    public String newUserName;
+    public String newUserEmail;
+    public String newUserPassword="libraryUser";
+
+    public void setNewUserName(String userName){
+        this.newUserName = userName;
+    }
+    public String getNewUserName(){
+        return newUserName;
+    }
+    public void setNewUserPassword(String password){
+        this.newUserPassword = password;
+    }
+    public String getNewUserPassword(){
+        return newUserPassword;
+    }
+    public void setNewUserEmail(String email){
+        this.newUserEmail = email;
+    }
+    public String getNewUserEmail(){
+        return newUserEmail;}
+
 
 
 }

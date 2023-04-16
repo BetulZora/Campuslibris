@@ -1,15 +1,14 @@
 package com.SoloProject.steps;
 
 import com.SoloProject.pages.BookPage;
-import com.SoloProject.utility.BrowserUtil;
-import com.SoloProject.utility.ConfigurationReader;
-import com.SoloProject.utility.DB_Util;
-import com.SoloProject.utility.LibraryAPI_Util;
+import com.SoloProject.pages.LoginPage;
+import com.SoloProject.utility.*;
 import com.github.javafaker.Job;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
+import io.restassured.internal.common.assertion.Assertion;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
@@ -27,6 +26,7 @@ import java.util.Map;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class APIStepDefs {
 
@@ -203,6 +203,88 @@ public class APIStepDefs {
 
     }
 
+    @Then("created user information should match with Database")
+    public void created_user_information_should_match_with_database() {
+        JsonPath jp = vResp.extract().jsonPath();
+        int newUserIDvResp = jp.getInt("user_id");
+
+        //"user_id": "8211"
+        String query = "select id, " +
+                "full_name, " +
+                "email, " +
+                "password, " +
+                "user_group_id, " +
+                "status, " +
+                "start_date, " +
+                "end_date, " +
+                "address " +
+                "from users " +
+                "where id="+newUserIDvResp+";";
+
+        System.out.println("query = " + query);
+        DB_Util.runQuery(query);
+
+        System.out.println("-------------------------------------------newUserDBMap");
+        Map<String,Object> newUserDBMap = DB_Util.getAllRowAsListOfMap().get(0);
+        System.out.println("newUserDBMap = " + newUserDBMap);
+
+        String newUserIDString = newUserIDvResp+"";
+        System.out.println("-------------------------------------------JP");
+        JsonPath jp2 = given().log().all()
+                .header("x-library-token",LibraryAPI_Util.getToken("librarian"))
+                .accept(acceptContentType)
+                .pathParam("id",newUserIDvResp)
+                .when().get(ConfigurationReader.getProperty("library.baseUri")+"/get_user_by_id/{id}").prettyPeek()
+                .then()
+                .body("id", equalTo(newUserIDString))
+                .body("full_name", is(newUserDBMap.get("full_name")))
+                .body("email", is(newUserDBMap.get("email")))
+                .body("password", is(newUserDBMap.get("password")))
+                .body("user_group_id", is(newUserDBMap.get("user_group_id")))
+                .body("status", is(newUserDBMap.get("status")))
+                .body("start_date", is(newUserDBMap.get("start_date")))
+                .body("end_date", is(newUserDBMap.get("end_date")))
+                .body("address", is(newUserDBMap.get("address")))
+                .extract().jsonPath();
+        System.out.println("-------------------------------------------Setting");
+
+        newUserPassword="libraryUser";
+        newUserEmail = (String) newUserDBMap.get("email");
+        System.out.println("newUserDBMap.get(\"email\") = " + newUserDBMap.get("email"));
+        newUserName = (String) newUserDBMap.get("full_name");
+
+        System.out.println("newUserDBMap.get(\"full_name\") = " + newUserDBMap.get("full_name"));
+
+    }
+
+    public String newUserPassword;
+    public String newUserEmail;
+    public String newUserName;
+
+
+    @Then("created user should be able to login Library UI")
+    public void created_user_should_be_able_to_login_library_ui() {
+        bookPage = new BookPage();
+        LoginPage loginPage = new LoginPage();
+        System.out.println("email blah = " + newUserEmail);
+        System.out.println("password blah= " + newUserPassword);
+
+        loginPage.login(newUserEmail,newUserPassword);
+        BrowserUtil.waitFor(2);
+        assertEquals(true,Driver.getDriver().getCurrentUrl().contains("#dashboard"));
+    }
+
+    @Then("created user name should appear in Dashboard Page")
+    public void created_user_name_should_appear_in_dashboard_page() {
+        bookPage = new BookPage();
+        String UIname = bookPage.accountHolderName.getText();
+        String createdName = newUserName;
+        System.out.println("UIname = " + UIname);
+        System.out.println("createdName = " + createdName);
+        assertEquals(UIname,createdName);
+
+
+    }
 
 
 
