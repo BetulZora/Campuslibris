@@ -47,11 +47,14 @@ public class APIStepDefs {
         givenPart = given().log().all()
                .header("x-library-token",LibraryAPI_Util.getToken(userType));
     }
+    String feature5token;
     @Given("I logged Library api with credentials {string} and {string}")
-    public void i_logged_library_api_with_credentials_and(String string, String string2) {
-        /**TODO: I have to write this
-         *
-         */
+    public void i_logged_library_api_with_credentials_and(String email, String password) {
+
+        feature5token = LibraryAPI_Util.getToken(email, password);
+        givenPart = given().log().all()
+                .header("x-library-token",feature5token);
+
     }
     @Given("Accept header is {string}")
     public void accept_header_is(String contentType) {
@@ -73,9 +76,7 @@ public class APIStepDefs {
 
     @Given("I send token information as request body")
     public void i_send_token_information_as_request_body() {
-        /**TODO: I have to write this
-         *
-         */
+        givenPart.body(("token="+feature5token));
     }
 
     @Given("I create a random {string} as request body")
